@@ -1,0 +1,61 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="style.css">
+    <title>SignalR Chat</title>
+</head>
+<body style="background-color: bisque">
+    <div id="loginBlock">
+        Enter your name:<br /><br />
+        <input id="userName" type="text" />
+        <input id="loginBtn" type="button" value="Login" />
+    </div>
+    <div id="header"></div>
+
+    <div id="inputForm">
+        <br />
+        <input type="text" id="message" placeholder="Write your message" />
+        <input type="button" id="sendBtn" value="Send" />
+    </div>
+    <div id="chatroom"></div>
+    <script src="js/signalr/dist/browser/signalr.min.js"></script>
+    <script>
+        const hubConnection = new signalR.HubConnectionBuilder()
+            .withUrl("/chat")
+            .build();
+
+        let userName = '';
+        // Receiving a message from the server
+        hubConnection.on('Send', function (message, userName) {
+
+            // Create a <b> element for the username
+            let userNameElem = document.createElement("b");
+            userNameElem.appendChild(document.createTextNode(userName + ': '));
+
+            // Creates a <p> element for the user's message
+            let elem = document.createElement("p");
+            elem.appendChild(userNameElem);
+            elem.appendChild(document.createTextNode(message));
+
+            var firstElem = document.getElementById("chatroom").firstChild;
+            document.getElementById("chatroom").insertBefore(elem, firstElem);
+
+        });
+
+        // Add username
+        document.getElementById("loginBtn").addEventListener("click", function (e) {
+            userName = document.getElementById("userName").value;
+            document.getElementById("header").innerHTML = '<h3>Welcome ' + userName + '</h3>';
+        });
+        // Sending a message to the server
+        document.getElementById("sendBtn").addEventListener("click", function (e) {
+            let message = document.getElementById("message").value;
+            hubConnection.invoke("Send", message, userName);
+        });
+
+        hubConnection.start();
+    </script>
+</body>
+</html>
+
