@@ -16,9 +16,11 @@
     <div id="inputForm">
         <br />
         <input type="text" id="message" placeholder="Write your message" />
-        <input type="button" id="sendBtn" value="Send" />
+        <button type="submit" id="sendBtn">Send</button>
     </div>
-    <div id="chatroom"></div>
+    <div id="chatroom">
+        
+    </div>
     <script src="js/signalr/dist/browser/signalr.min.js"></script>
     <script>
         const hubConnection = new signalR.HubConnectionBuilder()
@@ -33,14 +35,25 @@
             let userNameElem = document.createElement("b");
             userNameElem.appendChild(document.createTextNode(userName + ': '));
 
+            let today = new Date();
+            let time = today.getHours() + ":" + today.getMinutes();
+
             // Creates a <p> element for the user's message
             let elem = document.createElement("p");
             elem.appendChild(userNameElem);
-            elem.appendChild(document.createTextNode(message));
+            elem.appendChild(document.createTextNode(message + ' '));
+            elem.appendChild(document.createTextNode(time));
 
             var firstElem = document.getElementById("chatroom").firstChild;
             document.getElementById("chatroom").insertBefore(elem, firstElem);
 
+            // Clear input message
+            let form = document.getElementById("inputForm"),
+                input = form.getElementsByTagName("input");
+
+            for (let i = 0; i < input.length; i++) {
+                input[i].value = '';
+            }
         });
 
         // Add username
@@ -54,6 +67,7 @@
             hubConnection.invoke("Send", message, userName);
         });
 
+      
         hubConnection.start();
     </script>
 </body>
